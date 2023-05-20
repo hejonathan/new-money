@@ -12,7 +12,7 @@ class Backtester:
     """Initializes the backtester (timeframe, symbols, etc.)"""
 
     # TODO: replace start end times to a list of start and end times
-    def __init__(self, symbols: list,
+    def __init__(self, symbols: str = 'spy',
                  start: str = '1990-3-05',
                  end: str = '2023-3-16',
                  timeframe: str = '1d',
@@ -45,7 +45,7 @@ class Backtester:
                                             limit=limit,
                                             timeframe=self.timeframe).get()
 
-    def test(self, strategy, input_names: list, param_names: list, param_values: list):
+    def test(self, strategy, input_names: list, param_dict: dict):
         print(f'Running backtest on {strategy.__name__}:')
         frame = inspect.currentframe()
         args, _, _, values = inspect.getargvalues(frame)
@@ -58,16 +58,13 @@ class Backtester:
             short_name=strategy.__name__,
             input_names=input_names,
             output_names=['entries', 'exits'],
-            param_names=param_names
+            param_names=list(param_dict.keys())
         ).from_apply_func(strategy)
 
-        inputs = [self.data[e] for e in input_names]
-        parameter_dictionary = dict(zip(param_names, param_values))
+        for input_name in input_names:
+            param_dict[input_name] = self.data[input_name]
 
-        entries, exits = indicator.run(*inputs, **parameter_dictionary)
-
-        entries = entries == 1
-        exits = exits == -1
+        entries, exits = indicator.run(**param_dict)
 
         pf = vbt.Portfolio.from_signals(self.data['Open'], entries, exits, init_cash=self.init_cash, freq=self.timeframe)
 
