@@ -53,7 +53,7 @@ class Backtester:
         for i in args:
             print("\t%s = %s" % (i, values[i]))
 
-        indicator = vbt.IndicatorFactory(
+        ind = vbt.IndicatorFactory(
             class_name=strategy.__name__,
             short_name=strategy.__name__,
             input_names=input_names,
@@ -64,7 +64,12 @@ class Backtester:
         for input_name in input_names:
             param_dict[input_name] = self.data[input_name]
 
-        entries, exits = indicator.run(**param_dict)
+        print(inspect.signature(ind.run).parameters.keys())
+        print(param_dict.keys())
+
+        param_dict['param_product'] = True,
+        param_dict['to_2d']= False
+        order = ind.run(**param_dict)
 
         pf = vbt.Portfolio.from_signals(self.data['Open'], entries, exits, init_cash=self.init_cash, freq=self.timeframe)
 
