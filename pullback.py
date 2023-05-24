@@ -6,6 +6,7 @@ RSI = vbt.IndicatorFactory.from_talib('RSI')
 SMA = vbt.IndicatorFactory.from_talib('SMA')
 
 
+# input must have names: 'Open', 'Close', 'High', 'Low'
 def pullback_place_entry(Open, Close, rsi_window, sma_window, entries, out, leave):
     close = Close
     start = Open
@@ -25,7 +26,7 @@ def pullback_place_entry(Open, Close, rsi_window, sma_window, entries, out, leav
     exits = sell == -1
     entries = entries == 1
 
-    return entries, exits
+    return entries, exits  # mandatory
 
 
 param_dict = {
